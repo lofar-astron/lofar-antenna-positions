@@ -7,4 +7,4 @@ install:
   - pip install pathlib
   - python setup.py install
 script:
-  - cd && pytest --doctest-modules --ignore=scripts ~/lofar-antenna-positions
+  - cd .. && pytest --doctest-modules --ignore=scripts lofar-antenna-positions
