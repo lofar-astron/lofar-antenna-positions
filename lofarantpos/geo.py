@@ -2,6 +2,7 @@
 
 from numpy import sqrt, sin, cos, arctan2, array, cross, dot, float64
 from numpy.linalg.linalg import norm
+import numpy as np
 
 
 def normalized_earth_radius(latitude_rad):
@@ -29,7 +30,7 @@ def geographic_from_xyz(xyz_m):
     # Iterate to latitude solution
     phi_previous = 1e4
     phi = arctan2(z_m, r_m)
-    while abs(phi - phi_previous) > 1.6e-12:
+    while np.any(np.abs(phi - phi_previous)) > 1.6e-12:
         phi_previous = phi
         phi = arctan2(z_m + wgs84_e2 * wgs84_a * normalized_earth_radius(phi) * sin(phi),
                       r_m)
