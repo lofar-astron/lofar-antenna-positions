@@ -35,7 +35,11 @@ def split_scatter_kwargs(part, **kwargs):
     kwargs_out = {}
     for key, value in kwargs.items():
         if key in ("s", "c") and np.iterable(value) and len(value) > 1:
-            kwargs_out[key] = np.split(np.array(value), 2)[part]
+            if len(value) > 96:
+                split_value = np.split(value, [96])
+            else:
+                split_value = np.split(value, 2)
+            kwargs_out[key] = split_value[part]
         else:
             kwargs_out[key] = value
     return kwargs_out
@@ -143,6 +147,8 @@ def plot_hba(
 
         ax.scatter(xys[:, 0], xys[:, 1], **kwargs)
 
+    return xys[:0]
+
 
 def plot_lba(station_name, ax=None, centre=None, labels=False, **kwargs):
     """
@@ -219,7 +225,13 @@ def plot_cabinet(station_name, ax=None, centre=None, labels=False):
 
 
 def plot_station(
-    station_name, ax=None, centre=None, labels=False, tilestyle="lines", background=None
+    station_name,
+    ax=None,
+    centre=None,
+    labels=False,
+    tilestyle="lines",
+    background=None,
+    **kwargs
 ):
     """
     Plot a LOFAR station
@@ -249,8 +261,21 @@ def plot_station(
         ax.set_ylabel("Local North (m)")
         ax.set_title("LOFAR station " + station_name)
 
-    plot_lba(station_name, ax=ax, centre=centre, labels=labels)
-    plot_hba(station_name, ax=ax, centre=centre, labels=labels, tilestyle=tilestyle)
+    plot_lba(
+        station_name,
+        ax=ax,
+        centre=centre,
+        labels=labels,
+        **split_scatter_kwargs(0, **kwargs)
+    )
+    plot_hba(
+        station_name,
+        ax=ax,
+        centre=centre,
+        labels=labels,
+        tilestyle=tilestyle,
+        **split_scatter_kwargs(1, **kwargs)
+    )
     plot_cabinet(station_name, ax=ax, centre=centre, labels=labels)
 
     if background is not None:
