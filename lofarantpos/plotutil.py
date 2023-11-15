@@ -111,7 +111,7 @@ def plot_hba(
                 ax.text(x, y, str(num), va="center", ha="center")
 
 
-def plot_lba(station_name, ax=None, centre=None, labels=False):
+def plot_lba(station_name, ax=None, centre=None, labels=False, **kwargs):
     """
     Plot LOFAR LBA locations for one station
 
@@ -120,6 +120,7 @@ def plot_lba(station_name, ax=None, centre=None, labels=False):
         ax: existing matplotlib axes object to use
         centre: etrs coordinates of origin. Default: LBA phase centre of station.
         labels: add labels
+        kwargs: all other keyword-arguments are passed to matplotlib.scatter
 
     Example:
         >>> from lofarantpos.plotutil import plot_lba
@@ -138,7 +139,12 @@ def plot_lba(station_name, ax=None, centre=None, labels=False):
     etrs_delta = db.antenna_etrs(station_name + "LBA") - centre
     xys = (etrs_to_xyz @ etrs_delta.T)[:2, :].T
 
-    ax.plot(xys[:, 0], xys[:, 1], "k.")
+    if "c" not in kwargs:
+        kwargs.setdefault("color", "k")
+
+    kwargs.setdefault("marker", ".")
+
+    ax.scatter(xys[:, 0], xys[:, 1], **kwargs)
 
     if labels:
         for num, xy in enumerate(xys):
@@ -335,7 +341,7 @@ def _full_extent_to_xy(plotter, centre):
     except ImportError:
         raise RuntimeError("To plot background maps, tilemapbase is required")
 
-    scale = 2 ** plotter.zoom
+    scale = 2**plotter.zoom
     xmin_deg, ymin_deg = tilemapbase.mapping.to_lonlat(
         *plotter.extent.project(plotter.xtilemin / scale, plotter.ytilemin / scale)
     )
