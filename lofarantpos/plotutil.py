@@ -36,9 +36,9 @@ def split_scatter_kwargs(part, **kwargs):
     for key, value in kwargs.items():
         if key in ("s", "c") and np.iterable(value) and len(value) > 1:
             if len(value) > 96:
-                split_value = np.split(value, [96])
+                split_value = np.split(np.array(value), [96])
             else:
-                split_value = np.split(value, 2)
+                split_value = np.split(np.array(value), 2)
             kwargs_out[key] = split_value[part]
         else:
             kwargs_out[key] = value
@@ -68,6 +68,7 @@ def plot_hba(
     Example:
         >>> from lofarantpos.plotutil import plot_hba
         >>> plot_hba("CS001")
+        >>> plot_hba("CS001", c=list(range(48)))
     """
     if centre is None:
         centre = db.phase_centres[station_name + "HBA"]
@@ -164,6 +165,7 @@ def plot_lba(station_name, ax=None, centre=None, labels=False, **kwargs):
     Example:
         >>> from lofarantpos.plotutil import plot_lba
         >>> plot_lba("IE613", labels=True)
+        >>> plot_lba("CS001", c=list(range(96)))
     """
     if centre is None:
         centre = db.phase_centres[station_name + "LBA"]
@@ -247,9 +249,8 @@ def plot_station(
     Example:
         >>> from lofarantpos.plotutil import plot_station
         >>> plot_station("CS002")
-        >>> plot_station("CS011", background="openstreetmap")
+        >>> plot_station("CS011", background="openstreetmap", c=list(range(96 + 48)))
         >>> plot_station("RS210", background="luchtfoto")
-        >>> plot_station("IE613", background="Stamen_Toner")
     """
     if centre is None:
         centre = db.phase_centres[station_name + "LBA"]
@@ -383,7 +384,8 @@ def plot_core(
             background=None,
         )
 
-    add_background(ax, centre, background, zoom=15)
+    if background is not None:
+        add_background(ax, centre, background, zoom=15)
 
 
 def _full_extent_to_xy(plotter, centre):
@@ -445,7 +447,7 @@ def add_background(ax, centre, background, zoom=18):
         >>> fig, ax = plt.subplots()
         >>> plot_station("CS002", ax=ax)
         >>> plot_station("CS001", ax=ax, centre=centre)
-        >>> add_background(ax, centre, 'OSM')
+        >>> add_background(ax, centre, 'osm')
     """
     try:
         import tilemapbase
