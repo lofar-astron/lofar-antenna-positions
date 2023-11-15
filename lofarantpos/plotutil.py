@@ -25,11 +25,34 @@ __all__ = [
 ]
 
 
+def split_scatter_kwargs(part, **kwargs):
+    """
+    Helper function for passing scatter arguments to two HBA plots
+
+    Kwargs will be returned as dict, with the exception of 'c' and 's':
+    they are split into two parts, and one of them is returned
+    """
+    kwargs_out = {}
+    for key, value in kwargs.items():
+        if key in ("s", "c") and np.iterable(value) and len(value) > 1:
+            kwargs_out[key] = np.split(np.array(value), 2)[part]
+        else:
+            kwargs_out[key] = value
+    return kwargs_out
+
+
 def plot_hba(
-    station_name, ax=None, centre=None, subfield="", labels=False, tilestyle="lines"
+    station_name,
+    ax=None,
+    centre=None,
+    subfield="",
+    labels=False,
+    tilestyle="lines",
+    **kwargs
 ):
     """
-    Plot LOFAR HBA tiles for one station
+    Plot LOFAR HBA tiles for one station. If keyword-arguments are given, they
+    are passed to a scatter plot with the tile centers.
 
     Args:
         station_name: Station name, without suffix. E.g. "CS001"
@@ -61,6 +84,7 @@ def plot_hba(
             subfield="0",
             labels=labels,
             tilestyle=tilestyle,
+            **split_scatter_kwargs(0, **kwargs)
         )
         plot_hba(
             station_name,
@@ -69,6 +93,7 @@ def plot_hba(
             subfield="1",
             labels=labels,
             tilestyle=tilestyle,
+            **split_scatter_kwargs(1, **kwargs)
         )
         return
 
@@ -109,6 +134,14 @@ def plot_hba(
                 ax.text(x, y, str(num), va="center", ha="center", color="w")
             else:
                 ax.text(x, y, str(num), va="center", ha="center")
+
+    if len(kwargs) > 0:
+        if "c" not in kwargs:
+            kwargs.setdefault("color", "k")
+
+        kwargs.setdefault("marker", ".")
+
+        ax.scatter(xys[:, 0], xys[:, 1], **kwargs)
 
 
 def plot_lba(station_name, ax=None, centre=None, labels=False, **kwargs):
