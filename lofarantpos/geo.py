@@ -1,6 +1,6 @@
 """Functions for geographic transformations commonly used for LOFAR"""
 
-from numpy import sqrt, sin, cos, arctan2, array, cross, dot, float64, vstack, transpose, shape
+from numpy import sqrt, sin, cos, arctan2, array, cross, dot, float64, vstack, transpose, shape, concatenate, zeros_like, newaxis
 from numpy.linalg.linalg import norm
 
 
@@ -18,7 +18,7 @@ def geographic_from_xyz(xyz_m):
         xyz_m (Union[array, list]): xyz-coordinates (in m) of the given point.
 
     Returns:
-        Dict[Union[np.array, float]: Dictionary with 'lon_rad', 'lat_rad', 'height_m',
+        Dict[Union[array, float]: Dictionary with 'lon_rad', 'lat_rad', 'height_m',
                                      values are float for a single input, arrays for multiple inputs
 
     Example:
@@ -80,8 +80,7 @@ def localnorth_to_etrs(centerxyz_m):
         array: 3x3 rotation matrix
 
     Example:
-        >>> import numpy
-        >>> localnorth_to_etrs(numpy.array([3801633.868, -529022.268, 5076996.892]))
+        >>> localnorth_to_etrs(array([3801633.868, -529022.268, 5076996.892]))
         array([[ 0.13782846, -0.79200355,  0.59475516],
                [ 0.99045611,  0.11021248, -0.08276408],
                [ 0.        ,  0.60048613,  0.79963517]])
@@ -104,7 +103,6 @@ def xyz_from_geographic(lon_rad, lat_rad, height_m):
         array: xyz coordinates in meters
 
     Examples:
-        >>> import numpy
         >>> xyz_from_geographic(-0.1382, 0.9266, 99.115)
         array([3802111.62491437, -528822.82583168, 5076662.15079859])
         >>> coords = array([[-0.1382, 0.9266,  99.115],\
@@ -132,8 +130,30 @@ def normal_vector_ellipsoid(lon_rad, lat_rad):
 
 
 def normal_vector_meridian_plane(xyz_m):
+    """
+    Return a unit vector normal to the meridian plane
+
+    Example:
+        >>> test_coord = [3802111.6, -528822.8, 5076662.2]
+        >>> normal_vector_meridian_plane(test_coord)
+        array([-0.1377605 , -0.99046557,  0.        ])
+
+        >>> normal_vector_meridian_plane(array(test_coord))
+        array([-0.1377605 , -0.99046557,  0.        ])
+
+        >>> normal_vector_meridian_plane(array([test_coord, test_coord]).T)
+        array([[-0.1377605 , -0.1377605 ],
+               [-0.99046557, -0.99046557],
+               [ 0.        ,  0.        ]])
+    """
     x_m, y_m, _ = xyz_m
-    return array([y_m, -x_m, 0.0]) / sqrt(x_m ** 2 + y_m ** 2)
+    return concatenate(
+        [
+            array(y_m)[newaxis],
+            -array(x_m)[newaxis],
+            zeros_like(y_m)[newaxis],
+        ]
+    ) / sqrt(x_m**2 + y_m**2)
 
 
 def projection_matrix(xyz0_m, normal_vector):
