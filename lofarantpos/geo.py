@@ -1,6 +1,6 @@
 """Functions for geographic transformations commonly used for LOFAR"""
 
-from numpy import sqrt, sin, cos, arctan2, array, cross, dot, float64, vstack, transpose, shape, concatenate, zeros_like, newaxis
+from numpy import sqrt, sin, cos, arctan2, array, cross, dot, float64, vstack, transpose, shape, concatenate, zeros_like, newaxis, stack
 from numpy.linalg.linalg import norm
 
 
@@ -112,7 +112,7 @@ def xyz_from_geographic(lon_rad, lat_rad, height_m):
                [3738960.12012956, 1147998.32536741, 5021398.44437063]])
     """
     wgs84_a = 6378137.0
-    wgs84_f = 1. / 298.257223563
+    wgs84_f = 1.0 / 298.257223563
     wgs84_e2 = wgs84_f * (2.0 - wgs84_f)
     c = normalized_earth_radius(lat_rad)
     f = wgs84_f
@@ -131,7 +131,8 @@ def normal_vector_ellipsoid(lon_rad, lat_rad):
 
 def normal_vector_meridian_plane(xyz_m):
     """
-    Return a unit vector normal to the meridian plane
+    Return a unit vector normal to the meridian plane.
+    If a vector of xyz's is given, xyz should be the fastest varying axis.
 
     Example:
         >>> test_coord = [3802111.6, -528822.8, 5076662.2]
@@ -141,29 +142,42 @@ def normal_vector_meridian_plane(xyz_m):
         >>> normal_vector_meridian_plane(array(test_coord))
         array([-0.1377605 , -0.99046557,  0.        ])
 
-        >>> normal_vector_meridian_plane(array([test_coord, test_coord]).T)
-        array([[-0.1377605 , -0.1377605 ],
-               [-0.99046557, -0.99046557],
-               [ 0.        ,  0.        ]])
+        >>> normal_vector_meridian_plane(array([test_coord, test_coord]))
+        array([[-0.1377605 , -0.99046557,  0.        ],
+               [-0.1377605 , -0.99046557,  0.        ]])
     """
-    x_m, y_m, _ = xyz_m
-    return concatenate(
-        [
-            array(y_m)[newaxis],
-            -array(x_m)[newaxis],
-            zeros_like(y_m)[newaxis],
-        ]
-    ) / sqrt(x_m**2 + y_m**2)
+    result = zeros_like(xyz_m)
+    result[..., 0] = array(xyz_m)[..., 1]
+    result[..., 1] = -array(xyz_m)[..., 0]
+    result[..., 2] = 0
+    return result / norm(result, axis=-1, keepdims=True)
 
 
 def projection_matrix(xyz0_m, normal_vector):
-    r_unit = normal_vector
+    """
+    Create a projection matrix that will project a vector to the plane
+    orthogonal to normal_vector, with local north defined at xyz0_m.
+    The xyz should be the fastest varying axis.
+
+    Example:
+        >>> test_coord = [3802111.6, -528822.8, 5076662.2]
+        >>> cs002_normal = [0.59866826, 0.07212702, 0.79774307]
+        >>> projection_matrix(test_coord, cs002_normal)
+        array([[ 0.04616828, -0.79966543,  0.59866826],
+               [ 0.99117465,  0.11122275,  0.07212702],
+               [-0.12426302,  0.59005482,  0.79774307]])
+        >>> projection_matrix([test_coord, test_coord], [cs002_normal, cs002_normal]).shape
+        (2, 3, 3)
+    """
+    assert len(xyz0_m) == len(xyz0_m)
+    r_unit = array(normal_vector)
     meridian_normal = normal_vector_meridian_plane(xyz0_m)
     q_unit = cross(meridian_normal, r_unit)
-    q_unit /= norm(q_unit)
+    q_unit /= norm(q_unit, axis=-1, keepdims=True)
     p_unit = cross(q_unit, r_unit)
-    p_unit /= norm(p_unit)
-    return array([p_unit, q_unit, r_unit]).T
+    p_unit /= norm(p_unit, axis=-1, keepdims=True)
+    # Swapaxes transposes the 3x3 projection matrices (last two dims)
+    return stack([p_unit, q_unit, r_unit], axis=-2).swapaxes(-1, -2)
 
 
 def transform(xyz_m, xyz0_m, mat):
