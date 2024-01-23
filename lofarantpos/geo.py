@@ -1,6 +1,6 @@
 """Functions for geographic transformations commonly used for LOFAR"""
 
-from numpy import sqrt, sin, cos, arctan2, array, cross, dot, float64, vstack, transpose, shape, concatenate, zeros_like, newaxis, stack
+from numpy import sqrt, sin, cos, arctan2, array, cross, dot, float64, vstack, transpose, shape, concatenate, zeros_like, newaxis, stack, moveaxis
 from numpy.linalg.linalg import norm
 
 
@@ -44,11 +44,17 @@ def geographic_from_xyz(xyz_m):
 
 
 def geographic_array_from_xyz(xyz_m):
-    r'''
+    """
     xyz_m is a (N,3) array.
     Compute lon, lat, and height
     Output an (N, 3) array with latitude (rad), longitude (rad) and height (m)
-    '''
+
+    Examples:
+        >>> xyz_m = [3836811, 430299, 5059823]
+        >>> geographic_array_from_xyz([xyz_m, xyz_m])
+        array([[ 0.11168349,  0.92223593, -0.28265955],
+               [ 0.11168349,  0.92223593, -0.28265955]])
+    """
     wgs84_a = 6378137.0
     wgs84_f = 1./298.257223563
     wgs84_e2 = wgs84_f*(2.0 - wgs84_f)
@@ -80,10 +86,14 @@ def localnorth_to_etrs(centerxyz_m):
         array: 3x3 rotation matrix
 
     Example:
-        >>> localnorth_to_etrs(array([3801633.868, -529022.268, 5076996.892]))
+        >>> station1_etrs = [3801633.868, -529022.268, 5076996.892]
+        >>> station2_etrs = [3826577.462,  461022.624, 5064892.526]
+        >>> localnorth_to_etrs(array(station1_etrs))
         array([[ 0.13782846, -0.79200355,  0.59475516],
                [ 0.99045611,  0.11021248, -0.08276408],
                [ 0.        ,  0.60048613,  0.79963517]])
+        >>> localnorth_to_etrs([station1_etrs, station2_etrs]).shape
+        (2, 3, 3)
     """
     center_lonlat = geographic_from_xyz(centerxyz_m)
     ellipsoid_normal = normal_vector_ellipsoid(center_lonlat['lon_rad'], center_lonlat['lat_rad'])
@@ -124,9 +134,19 @@ def xyz_from_geographic(lon_rad, lat_rad, height_m):
 
 
 def normal_vector_ellipsoid(lon_rad, lat_rad):
-    return array([cos(lat_rad) * cos(lon_rad),
-                  cos(lat_rad) * sin(lon_rad),
-                  sin(lat_rad)])
+    """
+    Make a vector normal to the ellipsoid at given longitude and latitude
+
+    Examples:
+        >>> normal_vector_ellipsoid(0.12, 0.92)
+        array([0.60146348, 0.07252407, 0.79560162])
+        >>> normal_vector_ellipsoid([0.12, 0.13], [0.92, 0.93]).shape
+        (2, 3)
+    """
+    normalvector = array([cos(lat_rad) * cos(lon_rad),
+                          cos(lat_rad) * sin(lon_rad),
+                          sin(lat_rad)])
+    return moveaxis(normalvector, 0, -1)
 
 
 def normal_vector_meridian_plane(xyz_m):
