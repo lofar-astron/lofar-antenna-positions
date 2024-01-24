@@ -140,8 +140,8 @@ def normal_vector_ellipsoid(lon_rad, lat_rad):
     Examples:
         >>> normal_vector_ellipsoid(0.12, 0.92)
         array([0.60146348, 0.07252407, 0.79560162])
-        >>> normal_vector_ellipsoid([0.12, 0.13], [0.92, 0.93]).shape
-        (2, 3)
+        >>> normal_vector_ellipsoid([[0.12, 0.13]], [[0.92, 0.93]]).shape
+        (1, 2, 3)
     """
     normalvector = array([cos(lat_rad) * cos(lon_rad),
                           cos(lat_rad) * sin(lon_rad),
@@ -186,8 +186,9 @@ def projection_matrix(xyz0_m, normal_vector):
         array([[ 0.04616828, -0.79966543,  0.59866826],
                [ 0.99117465,  0.11122275,  0.07212702],
                [-0.12426302,  0.59005482,  0.79774307]])
-        >>> projection_matrix([test_coord, test_coord], [cs002_normal, cs002_normal]).shape
-        (2, 3, 3)
+        >>> projection_matrix([[test_coord, test_coord]],
+        ...                   [[cs002_normal, cs002_normal]]).shape
+        (1, 2, 3, 3)
     """
     assert len(xyz0_m) == len(xyz0_m)
     r_unit = array(normal_vector)
