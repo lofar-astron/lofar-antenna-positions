@@ -54,12 +54,17 @@ def geographic_array_from_xyz(xyz_m):
         >>> geographic_array_from_xyz([xyz_m, xyz_m])
         array([[ 0.11168349,  0.92223593, -0.28265955],
                [ 0.11168349,  0.92223593, -0.28265955]])
+
+        >>> geographic_array_from_xyz([[xyz_m, xyz_m]]).shape
+        (1, 2, 3)
     """
     wgs84_a = 6378137.0
     wgs84_f = 1./298.257223563
     wgs84_e2 = wgs84_f*(2.0 - wgs84_f)
     
-    x_m, y_m, z_m = transpose(xyz_m)
+    x_m = array(xyz_m)[..., 0]
+    y_m = array(xyz_m)[..., 1]
+    z_m = array(xyz_m)[..., 2]
     lon_rad = arctan2(y_m, x_m)
     r_m = sqrt(x_m**2 + y_m**2)
     # Iterate to latitude solution
@@ -71,7 +76,7 @@ def geographic_array_from_xyz(xyz_m):
                       r_m)
     lat_rad = phi
     height_m = r_m*cos(lat_rad) + z_m*sin(lat_rad) - wgs84_a*sqrt(1.0 - wgs84_e2*sin(lat_rad)**2)
-    return vstack((lon_rad, lat_rad, height_m)).T
+    return stack([lon_rad, lat_rad, height_m], -1)
 
 
 def localnorth_to_etrs(centerxyz_m):
