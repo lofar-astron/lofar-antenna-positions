@@ -495,12 +495,12 @@ def add_background(ax, centre, background, zoom=18):
         geographic_array_from_xyz(
             centre + (localnorth_to_etrs(centre) @ [xmin, ymin, 0])
         )
-    )[0]
+    )
     xmax_deg, ymax_deg, _ = np.rad2deg(
         geographic_array_from_xyz(
             centre + (localnorth_to_etrs(centre) @ [xmax, ymax, 0])
         )
-    )[0]
+    )
 
     extent = tilemapbase.Extent.from_lonlat(xmin_deg, xmax_deg, ymin_deg, ymax_deg)
 

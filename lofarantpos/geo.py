@@ -1,6 +1,6 @@
 """Functions for geographic transformations commonly used for LOFAR"""
 
-from numpy import sqrt, sin, cos, arctan2, array, cross, dot, float64, vstack, transpose, shape, concatenate, zeros_like, newaxis, stack, moveaxis
+from numpy import sqrt, sin, cos, arctan2, array, cross, dot, float64, vstack, transpose, shape, concatenate, zeros_like, newaxis, stack, moveaxis, set_printoptions
 from numpy.linalg.linalg import norm
 
 
@@ -21,25 +21,24 @@ def geographic_from_xyz(xyz_m):
         Dict[Union[array, float]: Dictionary with 'lon_rad', 'lat_rad', 'height_m',
                                      values are float for a single input, arrays for multiple inputs
 
-    Example:
+    Examples:
         >>> from pprint import pprint
         >>> xyz_m = [3836811, 430299, 5059823]
         >>> pprint(geographic_from_xyz(xyz_m))
         {'height_m': -0.28265954554080963,
         ...'lat_rad': 0.9222359279580563,
         ...'lon_rad': 0.11168348969295486}
+
         >>> xyz2_m = array([3828615, 438754, 5065265])
         >>> pprint(geographic_from_xyz([xyz_m, xyz2_m]))
         {'height_m': array([-0.28265955, -0.74483879]),
         ...'lat_rad': array([0.92223593, 0.92365033]),
         ...'lon_rad': array([0.11168349, 0.11410087])}
+
+        >>> geographic_from_xyz([[xyz_m, xyz2_m]])['lon_rad'].shape
+        (1, 2)
     """
-    lon_rad, lat_rad, height_m = geographic_array_from_xyz(xyz_m).T
-    # For backward compatibility, return floats (rather than shape 1 arrays) for single input
-    if shape(xyz_m) == (3,):
-        lon_rad = lon_rad[0]
-        lat_rad = lat_rad[0]
-        height_m = height_m[0]
+    lon_rad, lat_rad, height_m = moveaxis(geographic_array_from_xyz(xyz_m), -1, 0)
     return {'lon_rad': lon_rad, 'lat_rad': lat_rad, 'height_m': height_m}
 
 
@@ -62,9 +61,7 @@ def geographic_array_from_xyz(xyz_m):
     wgs84_f = 1./298.257223563
     wgs84_e2 = wgs84_f*(2.0 - wgs84_f)
     
-    x_m = array(xyz_m)[..., 0]
-    y_m = array(xyz_m)[..., 1]
-    z_m = array(xyz_m)[..., 2]
+    x_m, y_m, z_m = moveaxis(array(xyz_m), -1, 0)
     lon_rad = arctan2(y_m, x_m)
     r_m = sqrt(x_m**2 + y_m**2)
     # Iterate to latitude solution
@@ -91,14 +88,15 @@ def localnorth_to_etrs(centerxyz_m):
         array: 3x3 rotation matrix
 
     Example:
+        >>> set_printoptions(suppress=True)
         >>> station1_etrs = [3801633.868, -529022.268, 5076996.892]
         >>> station2_etrs = [3826577.462,  461022.624, 5064892.526]
         >>> localnorth_to_etrs(array(station1_etrs))
         array([[ 0.13782846, -0.79200355,  0.59475516],
                [ 0.99045611,  0.11021248, -0.08276408],
                [ 0.        ,  0.60048613,  0.79963517]])
-        >>> localnorth_to_etrs([station1_etrs, station2_etrs]).shape
-        (2, 3, 3)
+        >>> localnorth_to_etrs([[station1_etrs, station2_etrs]]).shape
+        (1, 2, 3, 3)
     """
     center_lonlat = geographic_from_xyz(centerxyz_m)
     ellipsoid_normal = normal_vector_ellipsoid(center_lonlat['lon_rad'], center_lonlat['lat_rad'])
