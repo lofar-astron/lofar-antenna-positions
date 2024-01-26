@@ -1,0 +1,33 @@
+[project]
+name = "lofarantpos"
+version = "0.6.0"
+description = "Access, query, and manipulate LOFAR antenna positions"
+authors = [
+    {name = "Tammo Jan Dijkema", email = "dijkema@astron.nl"},
+    {name = "M.A. Brentjens", email = "brentjens@astron.nl"},
+]
+dependencies = [
+'numpy',
+'matplotlib',
+'pathlib',
+'tilemapbase'
+]
+requires-python = ">=3.7"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 2",
+    "Programming Language :: Python :: 3",
+]
+
+[build-system]
+build-backend = "setuptools.build_meta"
+requires=[
+    "setuptools>=42",
+    "wheel",
+    "setuptools_scm"]
+
+[project.urls]
+Homepage = "https://github.com/lofar-astron/lofar-antenna-positions"

@@ -133,6 +133,7 @@ class LofarAntennaDatabase(object):
             # Install_prefix can end up to be some_path/lib/site_packages,
             # append to the search path the install_prefix minus last two directories
             search_path = [install_prefix(),
+                           pathlib.PurePath(__file__).parent,
                            os.sep.join(install_prefix().split(os.sep)[:-2]),
                            '/usr/local', '/usr']
             for attempt in search_path:
