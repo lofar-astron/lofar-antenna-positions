@@ -1,3 +1,1 @@
-import importlib.metadata
-
-__version__ = importlib.metadata.version("lofarantpos")
+__version__ = "0.7.0"

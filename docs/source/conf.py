@@ -4,13 +4,11 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../../lofarantpos/'))
 sys.path.insert(0, os.path.abspath('../..'))
-import importlib.metadata
-
+from lofarantpos import __version__
 
 project = 'lofarantpos'
-copyright = '2022, ASTRON'
+copyright = '2024, ASTRON'
 author = 'Michiel Brentens, Tammo Jan Dijkema'
-__version__ = importlib.metadata.version(project)
 
 release = __version__
 version = __version__
