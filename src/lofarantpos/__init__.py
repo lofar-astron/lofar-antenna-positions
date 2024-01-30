@@ -1,1 +1,3 @@
-__version__ = "0.7.0"  # Duplicated in pyproject.toml!
+import importlib.metadata
+
+__version__ = importlib.metadata.version("lofarantpos")
