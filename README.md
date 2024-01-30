@@ -1,5 +1,7 @@
 # LOFAR antenna database
 
+[Full documentation](https://lofarantpos.readthedocs.io/)
+
 Module for manipulating LOFAR antenna databases. Typical usage is to create
 an instance of a LofarAntennaDatabase:
 
