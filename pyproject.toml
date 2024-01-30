@@ -1,6 +1,6 @@
 [project]
 name = "lofarantpos"
-version = "0.7.0"  # Duplicated in src/lofarantpos/__init__.py !
+version = "0.7.0"
 description = "Access, query, and manipulate LOFAR antenna positions"
 authors = [
     {name = "Tammo Jan Dijkema", email = "dijkema@astron.nl"},
