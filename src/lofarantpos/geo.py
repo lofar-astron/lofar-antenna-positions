@@ -1,7 +1,7 @@
 """Functions for geographic transformations commonly used for LOFAR"""
 
 from numpy import sqrt, sin, cos, arctan2, array, cross, dot, float64, vstack, transpose, shape, concatenate, zeros_like, newaxis, stack, moveaxis, set_printoptions
-from numpy.linalg.linalg import norm
+from numpy.linalg import norm
 
 
 def normalized_earth_radius(latitude_rad):
@@ -21,19 +21,18 @@ def geographic_from_xyz(xyz_m):
         Dict[Union[array, float]: Dictionary with 'lon_rad', 'lat_rad', 'height_m',
                                      values are float for a single input, arrays for multiple inputs
 
-    Examples:
+    Example:
         >>> from pprint import pprint
         >>> xyz_m = [3836811, 430299, 5059823]
         >>> pprint(geographic_from_xyz(xyz_m))
         {'height_m': -0.28265954554080963,
-        ...'lat_rad': 0.9222359279580563,
-        ...'lon_rad': 0.11168348969295486}
-
+         'lat_rad': 0.9222359279580563,
+         'lon_rad': 0.11168348969295486}
         >>> xyz2_m = array([3828615, 438754, 5065265])
         >>> pprint(geographic_from_xyz([xyz_m, xyz2_m]))
         {'height_m': array([-0.28265955, -0.74483879]),
-        ...'lat_rad': array([0.92223593, 0.92365033]),
-        ...'lon_rad': array([0.11168349, 0.11410087])}
+         'lat_rad': array([0.92223593, 0.92365033]),
+         'lon_rad': array([0.11168349, 0.11410087])}
 
         >>> geographic_from_xyz([[xyz_m, xyz2_m]])['lon_rad'].shape
         (1, 2)

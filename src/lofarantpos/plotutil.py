@@ -1,8 +1,8 @@
 """
 Functions for plotting LOFAR stations with matplotlib
 """
-from .db import LofarAntennaDatabase
-from .geo import (
+from lofarantpos.db import LofarAntennaDatabase
+from lofarantpos.geo import (
     localnorth_to_etrs,
     geographic_array_from_xyz,
     xyz_from_geographic,
