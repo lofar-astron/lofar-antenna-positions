@@ -10,7 +10,7 @@ class NumpyOutputChecker(doctest.OutputChecker):
         got = re.sub(r'np\.float64\(([\d.-]*)\)', r'\1', got)
 
         # numpy.set_printoptions started producing output in some version
-        if got.strip().startswith("<Token"):
+        if got.strip().startswith("<Token") and want == "":
             return True
 
         return super().check_output(want, got, optionflags)
