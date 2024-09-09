@@ -1,7 +1,7 @@
 """Functions for geographic transformations commonly used for LOFAR"""
 
 from numpy import sqrt, sin, cos, arctan2, array, cross, dot, float64, vstack, transpose, shape, concatenate, zeros_like, newaxis, stack, moveaxis, set_printoptions
-from numpy.linalg.linalg import norm
+from numpy.linalg import norm
 
 
 def normalized_earth_radius(latitude_rad):
