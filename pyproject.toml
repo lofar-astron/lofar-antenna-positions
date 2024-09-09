@@ -1,6 +1,6 @@
 [project]
 name = "lofarantpos"
-version = "0.7.0"
+version = "0.7.1"
 description = "Access, query, and manipulate LOFAR antenna positions"
 authors = [
     {name = "Tammo Jan Dijkema", email = "dijkema@astron.nl"},
@@ -31,3 +31,7 @@ requires=[
 
 [project.urls]
 Homepage = "https://github.com/lofar-astron/lofar-antenna-positions"
+
+[tool.pytest.ini_options]
+doctest_optionflags = "ELLIPSIS"
+addopts = "--doctest-modules --doctest-continue-on-failure --ignore=scripts --ignore=docs"
