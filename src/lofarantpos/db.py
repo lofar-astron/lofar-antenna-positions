@@ -103,6 +103,13 @@ class ContainerLocation(object):
     def __repr__(self):
         return repr(self.__dict__)
 
+class LoraDetector(object):
+    def __init__(self, csv_row):
+        self.id = csv_row[0]
+        self.pqr = numpy.array([float(csv_row[1]), float(csv_row[2]), 0.0])
+
+    def __repr__(self):
+        return repr(self.__dict__)
 
 class RotationMatrix(object):
     def __init__(self, csv_row):
@@ -149,6 +156,10 @@ class LofarAntennaDatabase(object):
         self.cabinet_etrs = {
             c.station: c.etrs
             for c in parse_csv(os.path.join(share, 'stationinfo.csv'), ContainerLocation)
+        }
+        self.lora_detector_pqr = {
+            c.id: c.pqr
+            for c in parse_csv(os.path.join(share, 'lora_detectors.csv'), LoraDetector)
         }
         self.antennas = parse_csv(os.path.join(share, 'etrs-antenna-positions.csv'),
                                   Antenna)
