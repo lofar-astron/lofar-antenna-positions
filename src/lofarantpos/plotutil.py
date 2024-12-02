@@ -478,7 +478,7 @@ def add_background(ax, centre, background, zoom=18):
         t = getattr(tilemapbase.tiles, background)
     elif background == "luchtfoto":
         t = tilemapbase.tiles.Tiles(
-            "https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0/2022_ortho25/EPSG:3857/{zoom}/{x}/{y}.jpeg",
+            "https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0/2022_orthoHR/EPSG:3857/{zoom}/{x}/{y}.jpeg",
             "LUFO2022",
         )
     elif isinstance(background, tilemapbase.tiles.Tiles):
