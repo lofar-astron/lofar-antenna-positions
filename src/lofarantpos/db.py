@@ -133,6 +133,7 @@ class LofarAntennaDatabase(object):
         phase_centres (dict): ETRS phase centres for each antenna field
         hba_rotations (dict): HBA rotations (in radians) for each antenna field
         pqr_to_etrs (dict): Rotation matrix from PQR to ETRS for each antenna field
+        lora_detector_pqr (dict): PQR coordinates (in the PQR frame of CS002LBA) of LORA detectors
     """
 
     def __init__(self, path_to_files=None):
