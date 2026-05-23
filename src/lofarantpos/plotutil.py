@@ -233,6 +233,7 @@ def plot_station(
     labels=False,
     tilestyle="lines",
     background=None,
+    background_zoom=18,
     **kwargs
 ):
     """
@@ -280,7 +281,7 @@ def plot_station(
     plot_cabinet(station_name, ax=ax, centre=centre, labels=labels)
 
     if background is not None:
-        add_background(ax, centre, background)
+        add_background(ax, centre, background, zoom=background_zoom)
 
 
 def plot_superterp(
@@ -328,7 +329,7 @@ def plot_superterp(
 
 
 def plot_core(
-    ax=None, labels=False, circle=True, centre=None, tilestyle="lines", background=None
+    ax=None, labels=False, circle=True, centre=None, tilestyle="lines", background=None, background_zoom=15
 ):
     """
     Plot the LOFAR core
@@ -340,6 +341,7 @@ def plot_core(
         centre: ETRS xyz coordinates of centre (default is centre of the superterp)
         tilestyle: style for HBA tiles ("lines", "filled", or None)
         background: name of background to draw, e.g. "openstreetmap" or "luchtfoto"
+        background_zoom: zoomlevel of background tiles, default 15
 
     Example:
         >>> from lofarantpos.plotutil import plot_core
@@ -385,7 +387,7 @@ def plot_core(
         )
 
     if background is not None:
-        add_background(ax, centre, background, zoom=15)
+        add_background(ax, centre, background, zoom=background_zoom)
 
 
 def _full_extent_to_xy(plotter, centre):
@@ -476,10 +478,15 @@ def add_background(ax, centre, background, zoom=18):
         "Stamen_Watercolour",
     ]:
         t = getattr(tilemapbase.tiles, background)
-    elif background == "luchtfoto":
+    elif "luchtfoto" in background or "lufo" in background:
+        if background[-4:].isnumeric():
+            year = background[-4:]
+        else:
+            year = "2022"
         t = tilemapbase.tiles.Tiles(
-            "https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0/2022_orthoHR/EPSG:3857/{zoom}/{x}/{y}.jpeg",
-            "LUFO2022",
+            f"https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0/{year}_orthoHR/EPSG:3857/" +
+            "{zoom}/{x}/{y}.jpeg",
+            f"LUFO{year}", maxzoom=21
         )
     elif isinstance(background, tilemapbase.tiles.Tiles):
         t = background
@@ -506,7 +513,7 @@ def add_background(ax, centre, background, zoom=18):
 
     plotter = tilemapbase.Plotter(extent, t, zoom=zoom)
 
-    im = plotter.as_one_image()
+    im = plotter.as_one_image(allow_large=True)
 
     ax.imshow(im, extent=_full_extent_to_xy(plotter, centre), zorder=0)
 
