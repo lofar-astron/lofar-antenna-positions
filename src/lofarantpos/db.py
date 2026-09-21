@@ -136,7 +136,7 @@ class LofarAntennaDatabase(object):
         lora_detector_pqr (dict): PQR coordinates (in the PQR frame of CS002LBA) of LORA detectors
     """
 
-    def __init__(self, path_to_files=None):
+    def __init__(self, path_to_files=None, fake_full_pl611hba_field: bool=False):
         if path_to_files is None:
             # Install_prefix can end up to be some_path/lib/site_packages,
             # append to the search path the install_prefix minus last two directories
@@ -164,6 +164,8 @@ class LofarAntennaDatabase(object):
         }
         self.antennas = parse_csv(os.path.join(share, 'etrs-antenna-positions.csv'),
                                   Antenna)
+        if not fake_full_pl611hba_field:
+            self.antennas = [antenna for antenna in self.antennas if not (antenna.station == "PL611" and antenna.antenna_type == "HBA" and antenna.antenna_id > 47)]
         pqr_to_etrs_rows = parse_csv(os.path.join(share, 'rotation_matrices.dat'),
                                      RotationMatrix)
         self.pqr_to_etrs = {m.station + m.field: m.matrix for m in pqr_to_etrs_rows}
