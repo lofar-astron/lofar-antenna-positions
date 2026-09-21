@@ -136,7 +136,7 @@ class LofarAntennaDatabase(object):
         lora_detector_pqr (dict): PQR coordinates (in the PQR frame of CS002LBA) of LORA detectors
     """
 
-    def __init__(self, path_to_files=None):
+    def __init__(self, path_to_files=None, fake_full_pl611hba_field: bool=False):
         if path_to_files is None:
             # Install_prefix can end up to be some_path/lib/site_packages,
             # append to the search path the install_prefix minus last two directories
